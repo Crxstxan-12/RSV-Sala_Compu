@@ -1,9 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
 
-function ReservationForm({ onReservaAgregada }) {
+function ReservationForm({ usuario, perfil, onReservaAgregada }) {
   const [formData, setFormData] = useState({
-    nombre: '',
     curso: '',
     fecha: '',
     hora_inicio: '',
@@ -13,6 +12,11 @@ function ReservationForm({ onReservaAgregada }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+
+  useEffect(() => {
+    if (perfil?.nombre) {
+    }
+  }, [perfil])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -56,6 +60,8 @@ function ReservationForm({ onReservaAgregada }) {
         .from('reservas')
         .insert([{
           ...formData,
+          nombre: perfil?.nombre || usuario?.email,
+          usuario_id: usuario.id,
           estado: 'pendiente'
         }])
 
@@ -63,7 +69,6 @@ function ReservationForm({ onReservaAgregada }) {
 
       setSuccess('Reserva registrada exitosamente!')
       setFormData({
-        nombre: '',
         curso: '',
         fecha: '',
         hora_inicio: '',
@@ -89,14 +94,12 @@ function ReservationForm({ onReservaAgregada }) {
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="nombre">Nombre completo:</label>
+          <label>Profesor:</label>
           <input
             type="text"
-            id="nombre"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            required
+            value={perfil?.nombre || usuario?.email}
+            disabled
+            className="input-disabled"
           />
         </div>
 
