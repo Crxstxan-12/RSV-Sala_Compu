@@ -108,7 +108,7 @@ function App() {
           <h1>Gestión de Reservas - Sala de Computación</h1>
           <div className="header-user">
             <span className="user-info">
-              {perfil?.nombre} ({perfil?.rol === 'admin' ? 'Administrador' : 'Profesor'})
+              {perfil?.nombre} ({perfil?.rol === 'admin' ? 'Encargado Sala Computación' : 'Profesor'})
             </span>
             <button onClick={cerrarSesion} className="btn-small btn-logout">
               Cerrar Sesión

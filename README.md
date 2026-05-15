@@ -7,7 +7,7 @@ Este es un sistema completo para gestionar reservas de una sala de computación,
 - **Autenticación de usuarios**: Registro e inicio de sesión con correo y contraseña
 - **Roles de usuario**:
   - **Profesores**: Pueden crear reservas y ver todas las reservas
-  - **Administradores**: Tienen acceso completo, incluyendo panel de administración para aprobar, rechazar o eliminar reservas
+  - **Encargado Sala Computación**: Tienen acceso completo, incluyendo panel de administración para aprobar, rechazar o eliminar reservas
 - **Formulario de reservas**: Permite a los profesores registrar nuevas reservas con curso, fecha, horario y motivo
 - **Prevención de conflictos**: Evita que se realicen reservas en el mismo horario
 - **Visualización de reservas**: Tabla con todas las reservas ordenadas por fecha y hora

@@ -37,7 +37,17 @@ function Auth({ onLogin }) {
         setModo('login')
       }
     } catch (err) {
-      setError(err.message)
+      let mensajeError = err.message
+      if (mensajeError.includes('Invalid login credentials')) {
+        mensajeError = 'Credenciales inválidas. Verifica tu correo y contraseña.'
+      } else if (mensajeError.includes('Email not confirmed')) {
+        mensajeError = 'Correo electrónico no confirmado. Por favor confirma tu correo.'
+      } else if (mensajeError.includes('User already registered')) {
+        mensajeError = 'Este correo ya está registrado.'
+      } else if (mensajeError.includes('Password should be at least')) {
+        mensajeError = 'La contraseña debe tener al menos 6 caracteres.'
+      }
+      setError(mensajeError)
     } finally {
       setCargando(false)
     }
