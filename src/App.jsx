@@ -35,13 +35,32 @@ function App() {
 
   const cargarPerfil = async (userId) => {
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('perfiles')
         .select('*')
         .eq('id', userId)
         .single()
 
-      if (error) throw error
+      if (error) {
+        if (error.code === 'PGRST116') {
+          const { data: { user } } = await supabase.auth.getUser()
+          const { data: newProfile, error: insertError } = await supabase
+            .from('perfiles')
+            .insert([{
+              id: userId,
+              nombre: user?.email?.split('@')[0] || 'Usuario',
+              rol: 'profesor'
+            }])
+            .select()
+            .single()
+
+          if (insertError) throw insertError
+          data = newProfile
+        } else {
+          throw error
+        }
+      }
+
       setPerfil(data)
     } catch (error) {
       console.error('Error al cargar perfil:', error)
