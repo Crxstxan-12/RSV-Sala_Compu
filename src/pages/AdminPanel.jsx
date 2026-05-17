@@ -49,7 +49,11 @@ export default function AdminPanel() {
       if (error) throw error
       setReservas(data || [])
     } catch (e) {
-      setError(e.message || 'No se pudieron cargar las reservas.')
+      if (e?.status === 403) {
+        setError('Permisos insuficientes para leer reservas. Verifica RLS/políticas en Supabase.')
+      } else {
+        setError(e.message || 'No se pudieron cargar las reservas.')
+      }
     } finally {
       setLoadingReservas(false)
     }
@@ -66,7 +70,11 @@ export default function AdminPanel() {
       if (error) throw error
       setProfesores(data || [])
     } catch (e) {
-      setError(e.message || 'No se pudieron cargar los profesores.')
+      if (e?.status === 403) {
+        setError('Permisos insuficientes para leer perfiles. Verifica RLS/políticas en Supabase.')
+      } else {
+        setError(e.message || 'No se pudieron cargar los profesores.')
+      }
     } finally {
       setLoadingProfesores(false)
     }
@@ -265,4 +273,3 @@ export default function AdminPanel() {
     </div>
   )
 }
-

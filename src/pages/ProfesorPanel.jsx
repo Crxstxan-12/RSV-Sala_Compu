@@ -28,7 +28,11 @@ export default function ProfesorPanel() {
       if (error) throw error
       setReservas(data || [])
     } catch (e) {
-      setError(e.message || 'No se pudieron cargar las reservas.')
+      if (e?.status === 403) {
+        setError('Permisos insuficientes para leer reservas. Verifica RLS/políticas en Supabase.')
+      } else {
+        setError(e.message || 'No se pudieron cargar las reservas.')
+      }
     } finally {
       setLoading(false)
     }
@@ -103,4 +107,3 @@ export default function ProfesorPanel() {
     </div>
   )
 }
-

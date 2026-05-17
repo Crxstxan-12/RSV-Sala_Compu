@@ -4,6 +4,8 @@ import { supabase } from '../services/supabase'
 
 const traducirErrorAuth = (error) => {
   const mensaje = error?.message || 'Ocurrió un error inesperado.'
+  const status = error?.status
+  const code = error?.code
 
   if (mensaje.includes('Invalid login credentials')) {
     return 'Credenciales inválidas. Verifica tu correo y contraseña.'
@@ -19,6 +21,9 @@ const traducirErrorAuth = (error) => {
   }
   if (mensaje.includes('JWT expired')) {
     return 'Tu sesión expiró. Por favor inicia sesión nuevamente.'
+  }
+  if (status === 403 || code === '42501') {
+    return 'Permisos insuficientes. Verifica RLS y políticas en Supabase para "perfiles" y "reservas".'
   }
 
   return mensaje

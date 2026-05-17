@@ -28,13 +28,15 @@ Este es un sistema completo para gestionar reservas de una sala de computación,
 
 1. Ve a [supabase.com](https://supabase.com) y crea una cuenta
 2. Crea un nuevo proyecto
-3. Una vez creado, ve a **SQL Editor** y ejecuta el script completo que se encuentra en `src/supabase_schema.sql`
+3. En **Table Editor**, crea las tablas:
+   - `perfiles`: `id (uuid)`, `email (text)`, `nombre (text)`, `rol (text)`
+   - `reservas`: agrega la columna `usuario_id (uuid)` además de las columnas existentes
+4. En **Authentication**, habilita el proveedor Email/Password y configura (si quieres) la confirmación de correo
+5. En **Database → Policies (RLS)**, configura permisos para que:
+   - cada usuario pueda leer/crear su propio perfil
+   - los admins puedan ver perfiles y administrar reservas
 
-Este script creará:
-- Tabla `perfiles` para manejar roles de usuario
-- Tabla `reservas` actualizada con relación a usuarios
-- Triggers para crear perfiles automáticamente
-- Políticas de seguridad (RLS)
+Nota: la aplicación crea el perfil automáticamente al iniciar sesión si no existe (guardando email, nombre y rol=profesor por defecto), siempre que la tabla `perfiles` permita INSERT/SELECT para usuarios autenticados.
 
 ### 2. Configurar variables de entorno
 
@@ -105,6 +107,5 @@ src/
 ├── App.css                    # Estilos
 ├── index.css                  # Estilos globales
 ├── main.jsx                   # Punto de entrada
-├── supabaseClient.js          # Configuración de Supabase
-└── supabase_schema.sql        # Script SQL completo de la BD
+└── supabaseClient.js          # Configuración de Supabase
 ```
