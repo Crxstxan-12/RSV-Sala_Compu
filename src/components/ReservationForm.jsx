@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '../supabaseClient'
+import { useMemo, useState } from 'react'
+import { useAuth } from '../hooks/useAuth'
+import { supabase } from '../services/supabase'
 
-function ReservationForm({ usuario, perfil, onReservaAgregada }) {
+function ReservationForm({ onReservaAgregada }) {
+  const { user, profile } = useAuth()
   const [formData, setFormData] = useState({
     curso: '',
     fecha: '',
@@ -13,10 +15,10 @@ function ReservationForm({ usuario, perfil, onReservaAgregada }) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  useEffect(() => {
-    if (perfil?.nombre) {
-    }
-  }, [perfil])
+  const nombreMostrado = useMemo(() => {
+    const nombre = profile?.nombre?.trim()
+    return nombre ? nombre : user?.email
+  }, [profile?.nombre, user?.email])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -45,6 +47,10 @@ function ReservationForm({ usuario, perfil, onReservaAgregada }) {
     setSuccess('')
 
     try {
+      if (!user?.id) {
+        throw new Error('No se pudo identificar al usuario. Vuelve a iniciar sesión.')
+      }
+
       const { data: reservasExistentes, error: fetchError } = await supabase
         .from('reservas')
         .select('*')
@@ -60,8 +66,8 @@ function ReservationForm({ usuario, perfil, onReservaAgregada }) {
         .from('reservas')
         .insert([{
           ...formData,
-          nombre: perfil?.nombre || usuario?.email,
-          usuario_id: usuario.id,
+          nombre: nombreMostrado,
+          usuario_id: user.id,
           estado: 'pendiente'
         }])
 
@@ -80,7 +86,7 @@ function ReservationForm({ usuario, perfil, onReservaAgregada }) {
         onReservaAgregada()
       }
     } catch (err) {
-      setError(err.message)
+      setError(err?.message || 'No se pudo registrar la reserva.')
     } finally {
       setLoading(false)
     }
@@ -97,7 +103,7 @@ function ReservationForm({ usuario, perfil, onReservaAgregada }) {
           <label>Profesor:</label>
           <input
             type="text"
-            value={perfil?.nombre || usuario?.email}
+            value={nombreMostrado || ''}
             disabled
             className="input-disabled"
           />
