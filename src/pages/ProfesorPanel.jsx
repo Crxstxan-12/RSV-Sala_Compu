@@ -7,7 +7,7 @@ import { supabase } from '../services/supabase'
 
 export default function ProfesorPanel() {
   const { user, profile, signOut } = useAuth()
-  const [logoSrc, setLogoSrc] = useState(import.meta.env.VITE_BRAND_LOGO_URL || '/logo-escuela.png')
+  const [logoSrc, setLogoSrc] = useState('/logo-escuela.png')
   const [vista, setVista] = useState('formulario')
   const [reservas, setReservas] = useState([])
   const [loading, setLoading] = useState(true)
@@ -114,7 +114,7 @@ export default function ProfesorPanel() {
       </main>
 
       <footer className="footer">
-        <p> Cristian Cifuentes © 2026 {new Date().getFullYear()}</p>
+        <p> Cristian Cifuentes © {new Date().getFullYear()}</p>
       </footer>
     </div>
   )

@@ -23,7 +23,7 @@ const getEstadoBadge = (estado) => {
 
 export default function AdminPanel() {
   const { user, profile, signOut } = useAuth()
-  const [logoSrc, setLogoSrc] = useState(import.meta.env.VITE_BRAND_LOGO_URL || '/logo-escuela.png')
+  const [logoSrc, setLogoSrc] = useState('/logo-escuela.png')
 
   const [reservas, setReservas] = useState([])
   const [profesores, setProfesores] = useState([])
