@@ -8,6 +8,7 @@ export default function AuthPage() {
   const location = useLocation()
 
   const [modo, setModo] = useState('login')
+  const [logoSrc, setLogoSrc] = useState('/logo-escuela.png')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [nombre, setNombre] = useState('')
@@ -48,6 +49,14 @@ export default function AuthPage() {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        <div className="auth-brand">
+          <img
+            className="auth-logo"
+            src={logoSrc}
+            alt="Escuela Particular Chillán Viejo"
+            onError={() => setLogoSrc('/favicon.svg')}
+          />
+        </div>
         <h2>{modo === 'login' ? 'Iniciar Sesión' : 'Registrarse'}</h2>
         {error && <div className="alert error">{error}</div>}
         {success && <div className="alert success">{success}</div>}

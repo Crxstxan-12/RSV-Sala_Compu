@@ -111,6 +111,22 @@ body {
   max-width: 450px;
 }
 
+.auth-brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.auth-logo {
+  width: 84px;
+  height: 84px;
+  border-radius: 14px;
+  background: #fff;
+  padding: 8px;
+  object-fit: contain;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
 .auth-card h2 {
   text-align: center;
   margin-bottom: 2rem;
