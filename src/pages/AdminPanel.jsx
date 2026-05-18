@@ -23,6 +23,7 @@ const getEstadoBadge = (estado) => {
 
 export default function AdminPanel() {
   const { user, profile, signOut } = useAuth()
+  const [logoSrc, setLogoSrc] = useState(import.meta.env.VITE_BRAND_LOGO_URL || '/logo-escuela.png')
 
   const [reservas, setReservas] = useState([])
   const [profesores, setProfesores] = useState([])
@@ -146,8 +147,9 @@ export default function AdminPanel() {
           <div className="brand">
             <img
               className="brand-logo"
-              src="/logo-escuela.png"
+              src={logoSrc}
               alt="Escuela Particular Chillán Viejo"
+              onError={() => setLogoSrc('/favicon.svg')}
             />
             <div className="brand-text">
               <div className="brand-title">Plataforma de Reservas</div>

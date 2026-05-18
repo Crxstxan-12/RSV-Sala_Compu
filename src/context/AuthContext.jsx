@@ -135,25 +135,44 @@ export function AuthProvider({ children }) {
     let isMounted = true
 
     const init = async () => {
-      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession()
-      if (!isMounted) return
+      try {
+        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession()
+        if (!isMounted) return
 
-      if (sessionError) {
-        setError(traducirErrorAuth(sessionError))
-      }
+        if (sessionError) {
+          setError(traducirErrorAuth(sessionError))
+        }
 
-      setSession(currentSession || null)
-      setUser(currentSession?.user || null)
-      setLoadingSession(false)
+        setSession(currentSession || null)
+        setUser(currentSession?.user || null)
 
-      if (currentSession?.user) {
-        await fetchProfile(currentSession.user)
-      } else {
-        setProfile(null)
+        if (currentSession?.user) {
+          await fetchProfile(currentSession.user)
+        } else {
+          setProfile(null)
+        }
+      } catch (e) {
+        if (isMounted) {
+          setSession(null)
+          setUser(null)
+          setProfile(null)
+          setError(traducirErrorAuth(e))
+        }
+      } finally {
+        if (isMounted) {
+          setLoadingSession(false)
+        }
       }
     }
 
+    const timeoutId = window.setTimeout(() => {
+      if (!isMounted) return
+      setError('La sesión está tardando demasiado en inicializar. Revisa tu conexión y vuelve a cargar la página.')
+      setLoadingSession(false)
+    }, 8000)
+
     init()
+      .finally(() => window.clearTimeout(timeoutId))
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, nextSession) => {
       setSession(nextSession || null)
@@ -167,6 +186,7 @@ export function AuthProvider({ children }) {
 
     return () => {
       isMounted = false
+      window.clearTimeout(timeoutId)
       subscription.unsubscribe()
     }
   }, [fetchProfile])

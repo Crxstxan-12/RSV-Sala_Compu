@@ -244,18 +244,31 @@ body {
 
 .form-group input,
 .form-group textarea {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: 0.75rem;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
+  background-color: #fff;
+  color: #333;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: #667eea;
+}
+
+input[type="date"],
+input[type="time"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 44px;
+  line-height: 1.2;
 }
 
 .btn-primary {
