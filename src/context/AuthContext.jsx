@@ -22,6 +22,15 @@ const traducirErrorAuth = (error) => {
   if (mensaje.includes('JWT expired')) {
     return 'Tu sesión expiró. Por favor inicia sesión nuevamente.'
   }
+  if (
+    mensaje.includes('Failed to fetch') ||
+    mensaje.includes('NetworkError') ||
+    mensaje.includes('Load failed') ||
+    mensaje.includes('The operation was aborted') ||
+    mensaje.includes('AbortError')
+  ) {
+    return 'No se pudo conectar con Supabase. Prueba en otro navegador o desactiva bloqueadores/VPN, y revisa tu conexión.'
+  }
   if (status === 403 || code === '42501') {
     return 'Permisos insuficientes. Verifica RLS y políticas en Supabase para "perfiles" y "reservas".'
   }
