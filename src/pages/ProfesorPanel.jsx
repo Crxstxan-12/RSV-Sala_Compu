@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../services/supabase'
 
 export default function ProfesorPanel() {
-  const { user, profile, signOut } = useAuth()
+  const { user, profile, signOut, error: authError } = useAuth()
   const [logoSrc, setLogoSrc] = useState('/logo-escuela.png')
   const [vista, setVista] = useState('formulario')
   const [reservas, setReservas] = useState([])
@@ -95,6 +95,7 @@ export default function ProfesorPanel() {
       </nav>
 
       <main className="main">
+        {authError && !profile && <div className="alert error">{authError}</div>}
         {error && <div className="alert error">{error}</div>}
 
         {loading ? (

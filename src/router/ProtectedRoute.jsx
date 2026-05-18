@@ -39,8 +39,9 @@ export default function ProtectedRoute({ roles }) {
     return <Navigate to="/auth" replace state={{ from: location }} />
   }
 
-  if (!profile) {
-    const mensaje = error || 'No se pudo cargar tu perfil. Verifica que la tabla "perfiles" exista, tenga RLS/políticas correctas y que hayas ejecutado el SQL.'
+  const requiresAdminRole = Array.isArray(roles) && roles.length === 1 && roles[0] === 'admin'
+  if (!profile && requiresAdminRole) {
+    const mensaje = error || 'No se pudo cargar tu perfil. Revisa tu conexión e intenta nuevamente.'
     return <ErrorScreen mensaje={mensaje} onSalir={signOut} />
   }
 
