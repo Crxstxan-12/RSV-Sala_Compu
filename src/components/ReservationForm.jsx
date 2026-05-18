@@ -49,7 +49,7 @@ function ReservationForm({ onReservaAgregada }) {
     try {
       const { data: { user: authUser }, error: userError } = await withTimeout(
         supabase.auth.getUser(),
-        10000,
+        20000,
         'No se pudo validar tu sesión. Revisa tu conexión e intenta nuevamente.'
       )
       if (userError) throw userError
@@ -66,7 +66,7 @@ function ReservationForm({ onReservaAgregada }) {
           .from('reservas')
           .select('*')
           .eq('fecha', formData.fecha),
-        10000,
+        20000,
         'No se pudo validar disponibilidad. Revisa tu conexión e intenta nuevamente.'
       )
 
@@ -85,7 +85,7 @@ function ReservationForm({ onReservaAgregada }) {
             usuario_id: authUser.id,
             estado: 'pendiente'
           }]),
-        10000,
+        20000,
         'No se pudo registrar la reserva. Revisa tu conexión e intenta nuevamente.'
       )
 

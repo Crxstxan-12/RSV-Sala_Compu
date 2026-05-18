@@ -38,6 +38,8 @@ export default function AuthPage() {
         setSuccess('Registro realizado. Si tu proyecto requiere confirmación de correo, revisa tu email antes de iniciar sesión.')
         setModo('login')
       }
+    } catch {
+      return
     } finally {
       setLoading(false)
     }
@@ -103,4 +105,3 @@ export default function AuthPage() {
     </div>
   )
 }
-

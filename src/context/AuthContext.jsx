@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
         .select('id,email,nombre,rol')
         .eq('id', userToLoad.id)
         .maybeSingle(),
-        10000,
+        20000,
         'No se pudo cargar tu perfil. Revisa tu conexión e intenta nuevamente.'
       )
 
@@ -80,7 +80,7 @@ export function AuthProvider({ children }) {
         }])
         .select('id,email,nombre,rol')
         .single(),
-        10000,
+        20000,
         'No se pudo crear tu perfil. Revisa tu conexión e intenta nuevamente.'
       )
 
@@ -108,7 +108,7 @@ export function AuthProvider({ children }) {
 
       const { data, error } = await withTimeout(
         supabase.auth.signInWithPassword({ email, password }),
-        10000,
+        20000,
         'No se pudo conectar con Supabase para iniciar sesión. Revisa tu conexión e intenta nuevamente.'
       )
       if (error) throw error
@@ -137,7 +137,7 @@ export function AuthProvider({ children }) {
           }
         }
       }),
-        10000,
+        20000,
         'No se pudo conectar con Supabase para registrarse. Revisa tu conexión e intenta nuevamente.'
       )
       if (error) throw error
@@ -170,7 +170,7 @@ export function AuthProvider({ children }) {
 
         const { data: { session: currentSession }, error: sessionError } = await withTimeout(
           supabase.auth.getSession(),
-          10000,
+          20000,
           'No se pudo conectar con Supabase para recuperar la sesión.'
         )
         if (!isMounted) return
@@ -205,7 +205,7 @@ export function AuthProvider({ children }) {
       if (!isMounted) return
       setError('La sesión está tardando demasiado en inicializar. Revisa tu conexión y vuelve a cargar la página.')
       setLoadingSession(false)
-    }, 8000)
+    }, 25000)
 
     init()
       .finally(() => window.clearTimeout(timeoutId))
