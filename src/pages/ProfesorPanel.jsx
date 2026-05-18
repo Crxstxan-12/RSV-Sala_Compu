@@ -50,7 +50,17 @@ export default function ProfesorPanel() {
     <div className="app">
       <header className="header">
         <div className="header-content">
-          <h1>Gestión de Reservas - Sala de Computación</h1>
+          <div className="brand">
+            <img
+              className="brand-logo"
+              src="/logo-escuela.png"
+              alt="Escuela Particular Chillán Viejo"
+            />
+            <div className="brand-text">
+              <div className="brand-title">Plataforma de Reservas</div>
+              <div className="brand-subtitle">Sala de Computación · Escuela Particular Chillán Viejo</div>
+            </div>
+          </div>
           <div className="header-user">
             <span className="user-info">
               {nombreMostrado} ({profile?.rol === 'admin' ? 'Encargado Sala Computación' : 'Profesor'})
@@ -102,7 +112,7 @@ export default function ProfesorPanel() {
       </main>
 
       <footer className="footer">
-        <p>Sistema de Gestión de Reservas © {new Date().getFullYear()}</p>
+        <p>Plataforma de Reservas © {new Date().getFullYear()}</p>
       </footer>
     </div>
   )

@@ -20,12 +20,7 @@ body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 2rem;
-  text-align: center;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.header h1 {
-  font-size: 1.8rem;
 }
 
 .header-content {
@@ -34,6 +29,48 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.brand-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 6px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.brand-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brand-subtitle {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-user {
@@ -387,8 +424,13 @@ body {
     text-align: center;
   }
 
-  .header h1 {
-    font-size: 1.3rem;
+  .brand {
+    flex-direction: column;
+  }
+
+  .brand-title {
+    font-size: 1.35rem;
+    white-space: normal;
   }
 
   .header-user {
@@ -453,8 +495,12 @@ body {
 }
 
 @media (max-width: 480px) {
-  .header h1 {
-    font-size: 1.1rem;
+  .brand-title {
+    font-size: 1.2rem;
+  }
+
+  .brand-subtitle {
+    font-size: 0.9rem;
   }
 
   .nav-btn {
