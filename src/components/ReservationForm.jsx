@@ -47,9 +47,15 @@ function ReservationForm({ onReservaAgregada }) {
     setSuccess('')
 
     try {
-      if (!user?.id) {
+      const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
+      if (userError) throw userError
+      if (!authUser?.id) {
         throw new Error('No se pudo identificar al usuario. Vuelve a iniciar sesión.')
       }
+
+      const nombreProfesor = profile?.nombre?.trim()
+        ? profile.nombre.trim()
+        : authUser.email
 
       const { data: reservasExistentes, error: fetchError } = await supabase
         .from('reservas')
@@ -66,8 +72,8 @@ function ReservationForm({ onReservaAgregada }) {
         .from('reservas')
         .insert([{
           ...formData,
-          nombre: nombreMostrado,
-          usuario_id: user.id,
+          nombre: nombreProfesor,
+          usuario_id: authUser.id,
           estado: 'pendiente'
         }])
 
