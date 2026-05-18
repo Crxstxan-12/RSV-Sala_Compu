@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthContext } from './authContext'
-import { supabase } from '../services/supabase'
+import { supabase, supabaseConfigured, withTimeout } from '../services/supabase'
 
 const traducirErrorAuth = (error) => {
   const mensaje = error?.message || 'Ocurrió un error inesperado.'
@@ -45,11 +45,19 @@ export function AuthProvider({ children }) {
     setError('')
 
     try {
-      const { data, error: selectError } = await supabase
+      if (!supabaseConfigured) {
+        throw new Error('Faltan variables de entorno de Supabase. Configura VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en Vercel.')
+      }
+
+      const { data, error: selectError } = await withTimeout(
+        supabase
         .from('perfiles')
         .select('id,email,nombre,rol')
         .eq('id', userToLoad.id)
-        .maybeSingle()
+        .maybeSingle(),
+        10000,
+        'No se pudo cargar tu perfil. Revisa tu conexión e intenta nuevamente.'
+      )
 
       if (selectError) throw selectError
 
@@ -61,7 +69,8 @@ export function AuthProvider({ children }) {
       const nombreDesdeMetadata = userToLoad.user_metadata?.nombre
       const nombreFallback = nombreDesdeMetadata?.trim() ? nombreDesdeMetadata.trim() : userToLoad.email
 
-      const { data: inserted, error: insertError } = await supabase
+      const { data: inserted, error: insertError } = await withTimeout(
+        supabase
         .from('perfiles')
         .insert([{
           id: userToLoad.id,
@@ -70,7 +79,10 @@ export function AuthProvider({ children }) {
           rol: 'profesor'
         }])
         .select('id,email,nombre,rol')
-        .single()
+        .single(),
+        10000,
+        'No se pudo crear tu perfil. Revisa tu conexión e intenta nuevamente.'
+      )
 
       if (insertError) throw insertError
       setProfile(inserted)
@@ -90,7 +102,15 @@ export function AuthProvider({ children }) {
   const signIn = useCallback(async ({ email, password }) => {
     setError('')
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (!supabaseConfigured) {
+        throw new Error('Faltan variables de entorno de Supabase. Configura VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en Vercel.')
+      }
+
+      const { data, error } = await withTimeout(
+        supabase.auth.signInWithPassword({ email, password }),
+        10000,
+        'No se pudo conectar con Supabase para iniciar sesión. Revisa tu conexión e intenta nuevamente.'
+      )
       if (error) throw error
       return data
     } catch (e) {
@@ -102,7 +122,12 @@ export function AuthProvider({ children }) {
   const signUp = useCallback(async ({ email, password, nombre }) => {
     setError('')
     try {
-      const { data, error } = await supabase.auth.signUp({
+      if (!supabaseConfigured) {
+        throw new Error('Faltan variables de entorno de Supabase. Configura VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en Vercel.')
+      }
+
+      const { data, error } = await withTimeout(
+        supabase.auth.signUp({
         email,
         password,
         options: {
@@ -111,7 +136,10 @@ export function AuthProvider({ children }) {
             rol: 'profesor'
           }
         }
-      })
+      }),
+        10000,
+        'No se pudo conectar con Supabase para registrarse. Revisa tu conexión e intenta nuevamente.'
+      )
       if (error) throw error
       return data
     } catch (e) {
@@ -136,7 +164,15 @@ export function AuthProvider({ children }) {
 
     const init = async () => {
       try {
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession()
+        if (!supabaseConfigured) {
+          throw new Error('Faltan variables de entorno de Supabase. Configura VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en Vercel.')
+        }
+
+        const { data: { session: currentSession }, error: sessionError } = await withTimeout(
+          supabase.auth.getSession(),
+          10000,
+          'No se pudo conectar con Supabase para recuperar la sesión.'
+        )
         if (!isMounted) return
 
         if (sessionError) {

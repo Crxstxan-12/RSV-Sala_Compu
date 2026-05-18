@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import { supabase } from '../services/supabase'
+import { supabase, withTimeout } from '../services/supabase'
 
 function ReservationForm({ onReservaAgregada }) {
   const { user, profile } = useAuth()
@@ -47,7 +47,11 @@ function ReservationForm({ onReservaAgregada }) {
     setSuccess('')
 
     try {
-      const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
+      const { data: { user: authUser }, error: userError } = await withTimeout(
+        supabase.auth.getUser(),
+        10000,
+        'No se pudo validar tu sesión. Revisa tu conexión e intenta nuevamente.'
+      )
       if (userError) throw userError
       if (!authUser?.id) {
         throw new Error('No se pudo identificar al usuario. Vuelve a iniciar sesión.')
@@ -57,10 +61,14 @@ function ReservationForm({ onReservaAgregada }) {
         ? profile.nombre.trim()
         : authUser.email
 
-      const { data: reservasExistentes, error: fetchError } = await supabase
-        .from('reservas')
-        .select('*')
-        .eq('fecha', formData.fecha)
+      const { data: reservasExistentes, error: fetchError } = await withTimeout(
+        supabase
+          .from('reservas')
+          .select('*')
+          .eq('fecha', formData.fecha),
+        10000,
+        'No se pudo validar disponibilidad. Revisa tu conexión e intenta nuevamente.'
+      )
 
       if (fetchError) throw fetchError
 
@@ -68,14 +76,18 @@ function ReservationForm({ onReservaAgregada }) {
         throw new Error('Ya existe una reserva en ese horario')
       }
 
-      const { error: insertError } = await supabase
-        .from('reservas')
-        .insert([{
-          ...formData,
-          nombre: nombreProfesor,
-          usuario_id: authUser.id,
-          estado: 'pendiente'
-        }])
+      const { error: insertError } = await withTimeout(
+        supabase
+          .from('reservas')
+          .insert([{
+            ...formData,
+            nombre: nombreProfesor,
+            usuario_id: authUser.id,
+            estado: 'pendiente'
+          }]),
+        10000,
+        'No se pudo registrar la reserva. Revisa tu conexión e intenta nuevamente.'
+      )
 
       if (insertError) throw insertError
 

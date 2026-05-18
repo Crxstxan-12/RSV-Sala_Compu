@@ -114,7 +114,7 @@ export default function ProfesorPanel() {
       </main>
 
       <footer className="footer">
-        <p>Plataforma de Reservas © {new Date().getFullYear()}</p>
+        <p> Cristian Cifuentes © 2026 {new Date().getFullYear()}</p>
       </footer>
     </div>
   )
