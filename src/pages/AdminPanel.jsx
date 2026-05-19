@@ -112,20 +112,42 @@ export default function AdminPanel() {
   const eliminarReserva = async (id) => {
     if (!window.confirm('¿Estás seguro de que deseas eliminar esta reserva?')) return
 
-    setLoadingAccion(prev => ({ ...prev, [`delete-${id}`]: true }))
+    const reservaId = typeof id === 'bigint' ? id.toString() : String(id)
+
+    setLoadingAccion(prev => ({ ...prev, [`delete-${reservaId}`]: true }))
     limpiarMensajes()
+
     try {
-      const { error } = await supabase
+      const { error: deleteError, count } = await supabase
         .from('reservas')
-        .delete()
-        .eq('id', id)
-      if (error) throw error
+        .delete({ count: 'exact' })
+        .eq('id', reservaId)
+
+      if (deleteError) throw deleteError
+
+      if (count === 0) {
+        const { data: existe, error: checkError } = await supabase
+          .from('reservas')
+          .select('id')
+          .eq('id', reservaId)
+          .maybeSingle()
+
+        if (checkError) throw checkError
+        if (existe) {
+          throw new Error('No se pudo eliminar la reserva. Verifica que tu usuario tenga rol admin y que la policy DELETE permita borrar registros.')
+        }
+      }
+
       setSuccess('Reserva eliminada exitosamente.')
       await cargarReservas()
     } catch (e) {
-      setError(e.message || 'No se pudo eliminar la reserva.')
+      if (e?.status === 403) {
+        setError('Permisos insuficientes para eliminar reservas. Revisa la policy DELETE y que tu usuario sea admin.')
+      } else {
+        setError(e?.message || 'No se pudo eliminar la reserva.')
+      }
     } finally {
-      setLoadingAccion(prev => ({ ...prev, [`delete-${id}`]: false }))
+      setLoadingAccion(prev => ({ ...prev, [`delete-${reservaId}`]: false }))
     }
   }
 
