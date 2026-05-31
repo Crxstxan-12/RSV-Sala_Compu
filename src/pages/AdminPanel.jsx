@@ -31,6 +31,7 @@ export default function AdminPanel() {
   const [loadingReservas, setLoadingReservas] = useState(true)
   const [loadingProfesores, setLoadingProfesores] = useState(true)
   const [loadingAccion, setLoadingAccion] = useState({})
+  const [confirmDelete, setConfirmDelete] = useState(null)
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -110,10 +111,9 @@ export default function AdminPanel() {
   }
 
   const eliminarReserva = async (id) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar esta reserva?')) return
-
     const reservaId = typeof id === 'bigint' ? id.toString() : String(id)
 
+    setConfirmDelete(null)
     setLoadingAccion(prev => ({ ...prev, [`delete-${reservaId}`]: true }))
     limpiarMensajes()
 
@@ -254,13 +254,24 @@ export default function AdminPanel() {
                               {loadingAccion[reserva.id] ? '...' : 'Rechazar'}
                             </button>
                           )}
-                          <button
-                            onClick={() => eliminarReserva(reserva.id)}
-                            disabled={loadingAccion[`delete-${reserva.id}`]}
-                            className="btn-small btn-delete"
-                          >
-                            {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Eliminar'}
-                          </button>
+                          {confirmDelete === reserva.id ? (
+                            <>
+                              <button onClick={() => eliminarReserva(reserva.id)} className="btn-small btn-delete" disabled={loadingAccion[`delete-${reserva.id}`]}>
+                                {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Confirmar'}
+                              </button>
+                              <button onClick={() => setConfirmDelete(null)} className="btn-small btn-cancel">
+                                Cancelar
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => setConfirmDelete(reserva.id)}
+                              disabled={loadingAccion[`delete-${reserva.id}`]}
+                              className="btn-small btn-delete"
+                            >
+                              Eliminar
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -296,13 +307,24 @@ export default function AdminPanel() {
                           {loadingAccion[reserva.id] ? '...' : 'Rechazar'}
                         </button>
                       )}
-                      <button
-                        onClick={() => eliminarReserva(reserva.id)}
-                        disabled={loadingAccion[`delete-${reserva.id}`]}
-                        className="btn-small btn-delete"
-                      >
-                        {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Eliminar'}
-                      </button>
+                      {confirmDelete === reserva.id ? (
+                        <>
+                          <button onClick={() => eliminarReserva(reserva.id)} className="btn-small btn-delete" disabled={loadingAccion[`delete-${reserva.id}`]}>
+                            {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Confirmar'}
+                          </button>
+                          <button onClick={() => setConfirmDelete(null)} className="btn-small btn-cancel">
+                            Cancelar
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmDelete(reserva.id)}
+                          disabled={loadingAccion[`delete-${reserva.id}`]}
+                          className="btn-small btn-delete"
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -321,7 +343,7 @@ export default function AdminPanel() {
           ) : profesores.length === 0 ? (
             <p className="no-reservas">No hay profesores registrados.</p>
           ) : (
-            <div className="admin-table-wrapper">
+            <div className="table-wrapper">
               <table className="admin-table">
                 <thead>
                   <tr>
