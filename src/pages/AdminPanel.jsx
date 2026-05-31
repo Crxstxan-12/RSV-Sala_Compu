@@ -212,60 +212,102 @@ export default function AdminPanel() {
           ) : reservasOrdenadas.length === 0 ? (
             <p className="no-reservas">No hay reservas para administrar.</p>
           ) : (
-            <div className="admin-table-wrapper">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Profesor</th>
-                    <th>Curso</th>
-                    <th>Fecha</th>
-                    <th>Horario</th>
-                    <th>Motivo</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reservasOrdenadas.map((reserva) => (
-                    <tr key={reserva.id}>
-                      <td>{reserva.nombre}</td>
-                      <td>{reserva.curso}</td>
-                      <td>{formatearFecha(reserva.fecha)}</td>
-                      <td>{reserva.hora_inicio} - {reserva.hora_fin}</td>
-                      <td>{reserva.motivo}</td>
-                      <td>{getEstadoBadge(reserva.estado)}</td>
-                      <td className="actions-cell">
-                        {reserva.estado !== 'aprobada' && (
-                          <button
-                            onClick={() => actualizarEstado(reserva.id, 'aprobada')}
-                            disabled={loadingAccion[reserva.id]}
-                            className="btn-small btn-approve"
-                          >
-                            {loadingAccion[reserva.id] ? '...' : 'Aprobar'}
-                          </button>
-                        )}
-                        {reserva.estado !== 'rechazada' && (
-                          <button
-                            onClick={() => actualizarEstado(reserva.id, 'rechazada')}
-                            disabled={loadingAccion[reserva.id]}
-                            className="btn-small btn-reject"
-                          >
-                            {loadingAccion[reserva.id] ? '...' : 'Rechazar'}
-                          </button>
-                        )}
-                        <button
-                          onClick={() => eliminarReserva(reserva.id)}
-                          disabled={loadingAccion[`delete-${reserva.id}`]}
-                          className="btn-small btn-delete"
-                        >
-                          {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Eliminar'}
-                        </button>
-                      </td>
+            <>
+              <div className="admin-table-wrapper">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Profesor</th>
+                      <th>Curso</th>
+                      <th>Fecha</th>
+                      <th>Horario</th>
+                      <th>Motivo</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {reservasOrdenadas.map((reserva) => (
+                      <tr key={reserva.id}>
+                        <td>{reserva.nombre}</td>
+                        <td>{reserva.curso}</td>
+                        <td>{formatearFecha(reserva.fecha)}</td>
+                        <td>{reserva.hora_inicio} - {reserva.hora_fin}</td>
+                        <td>{reserva.motivo}</td>
+                        <td>{getEstadoBadge(reserva.estado)}</td>
+                        <td className="actions-cell">
+                          {reserva.estado !== 'aprobada' && (
+                            <button
+                              onClick={() => actualizarEstado(reserva.id, 'aprobada')}
+                              disabled={loadingAccion[reserva.id]}
+                              className="btn-small btn-approve"
+                            >
+                              {loadingAccion[reserva.id] ? '...' : 'Aprobar'}
+                            </button>
+                          )}
+                          {reserva.estado !== 'rechazada' && (
+                            <button
+                              onClick={() => actualizarEstado(reserva.id, 'rechazada')}
+                              disabled={loadingAccion[reserva.id]}
+                              className="btn-small btn-reject"
+                            >
+                              {loadingAccion[reserva.id] ? '...' : 'Rechazar'}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => eliminarReserva(reserva.id)}
+                            disabled={loadingAccion[`delete-${reserva.id}`]}
+                            className="btn-small btn-delete"
+                          >
+                            {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Eliminar'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="reserva-cards">
+                {reservasOrdenadas.map((reserva) => (
+                  <div key={reserva.id} className="reserva-card">
+                    <div className="card-row"><span className="card-label">Profesor:</span> {reserva.nombre}</div>
+                    <div className="card-row"><span className="card-label">Curso:</span> {reserva.curso}</div>
+                    <div className="card-row"><span className="card-label">Fecha:</span> {formatearFecha(reserva.fecha)}</div>
+                    <div className="card-row"><span className="card-label">Horario:</span> {reserva.hora_inicio} - {reserva.hora_fin}</div>
+                    <div className="card-row"><span className="card-label">Motivo:</span> {reserva.motivo}</div>
+                    <div className="card-row"><span className="card-label">Estado:</span> {getEstadoBadge(reserva.estado)}</div>
+                    <div className="card-actions">
+                      {reserva.estado !== 'aprobada' && (
+                        <button
+                          onClick={() => actualizarEstado(reserva.id, 'aprobada')}
+                          disabled={loadingAccion[reserva.id]}
+                          className="btn-small btn-approve"
+                        >
+                          {loadingAccion[reserva.id] ? '...' : 'Aprobar'}
+                        </button>
+                      )}
+                      {reserva.estado !== 'rechazada' && (
+                        <button
+                          onClick={() => actualizarEstado(reserva.id, 'rechazada')}
+                          disabled={loadingAccion[reserva.id]}
+                          className="btn-small btn-reject"
+                        >
+                          {loadingAccion[reserva.id] ? '...' : 'Rechazar'}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => eliminarReserva(reserva.id)}
+                        disabled={loadingAccion[`delete-${reserva.id}`]}
+                        className="btn-small btn-delete"
+                      >
+                        {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Eliminar'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
 

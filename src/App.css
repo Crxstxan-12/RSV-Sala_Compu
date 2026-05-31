@@ -448,6 +448,52 @@ input[type="time"] {
   margin-top: auto;
 }
 
+.reserva-cards {
+  display: none;
+}
+
+.reserva-card {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.card-row {
+  padding: 0.3rem 0;
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #eee;
+}
+
+.card-row:last-of-type {
+  border-bottom: none;
+}
+
+.card-label {
+  font-weight: 700;
+  color: #555;
+  min-width: 70px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 2px solid #e0e0e0;
+}
+
+.card-actions .btn-small {
+  flex: 1;
+  min-width: 80px;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
@@ -497,6 +543,14 @@ input[type="time"] {
 
   .form-row .form-group {
     min-width: 100%;
+  }
+
+  .admin-table-wrapper {
+    display: none;
+  }
+
+  .reserva-cards {
+    display: block;
   }
 
   .reservas-table,

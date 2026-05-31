@@ -128,7 +128,7 @@ function ReservationForm({ onReservaAgregada }) {
         </div>
 
         <div className="form-group">
-          <label htmlFor="curso">Curso/Grupo:</label>
+          <label htmlFor="curso">Curso:</label>
           <input
             type="text"
             id="curso"
@@ -148,6 +148,7 @@ function ReservationForm({ onReservaAgregada }) {
             value={formData.fecha}
             onChange={handleChange}
             min={new Date().toISOString().split('T')[0]}
+            max={`${new Date().getFullYear()}-12-31`}
             required
           />
         </div>
