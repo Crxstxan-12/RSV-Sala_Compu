@@ -15,8 +15,6 @@ export default function EquipmentRequestForm({ onSolicitudAgregada }) {
     hora_inicio: '',
     hora_fin: '',
     recurso: '',
-    recurso_otro: '',
-    cantidad: 1,
     motivo: '',
     observaciones: '',
   })
@@ -53,11 +51,6 @@ export default function EquipmentRequestForm({ onSolicitudAgregada }) {
       if (userError) throw userError
       if (!authUser?.id) throw new Error('No se pudo identificar al usuario. Vuelve a iniciar sesión.')
 
-      const recursoFinal = formData.recurso === 'Otro'
-        ? formData.recurso_otro.trim()
-        : formData.recurso
-      if (!recursoFinal) throw new Error('Debes especificar el recurso solicitado.')
-
       const { data: existentes, error: fetchError } = await withTimeout(
         supabase.from('solicitudes_equipos').select('*').eq('fecha', formData.fecha),
         20000,
@@ -66,7 +59,7 @@ export default function EquipmentRequestForm({ onSolicitudAgregada }) {
       if (fetchError) throw fetchError
 
       const conflicto = (existentes || []).some(s => {
-        if (s.recurso !== recursoFinal) return false
+        if (s.recurso !== formData.recurso) return false
         if (s.estado === 'rechazada' || s.estado === 'devuelta') return false
         const inicioNuevo = new Date(`2000-01-01T${formData.hora_inicio}`).getTime()
         const finNuevo = new Date(`2000-01-01T${formData.hora_fin}`).getTime()
@@ -76,7 +69,7 @@ export default function EquipmentRequestForm({ onSolicitudAgregada }) {
       })
 
       if (conflicto) {
-        throw new Error(`"${recursoFinal}" ya está solicitado en ese horario. Elige otro horario o recurso.`)
+        throw new Error(`No hay equipos disponibles. El "${formData.recurso}" ya está pedido en ese horario.`)
       }
 
       const { error: insertError } = await withTimeout(
@@ -86,8 +79,8 @@ export default function EquipmentRequestForm({ onSolicitudAgregada }) {
           fecha: formData.fecha,
           hora_inicio: formData.hora_inicio,
           hora_fin: formData.hora_fin,
-          recurso: recursoFinal,
-          cantidad: Number(formData.cantidad),
+          recurso: formData.recurso,
+          cantidad: 1,
           motivo: formData.motivo,
           observaciones: formData.observaciones || null,
           estado: 'pendiente',
@@ -105,8 +98,6 @@ export default function EquipmentRequestForm({ onSolicitudAgregada }) {
         hora_inicio: '',
         hora_fin: '',
         recurso: '',
-        recurso_otro: '',
-        cantidad: 1,
         motivo: '',
         observaciones: '',
       })
@@ -182,52 +173,22 @@ export default function EquipmentRequestForm({ onSolicitudAgregada }) {
           </div>
         </div>
 
-        <div className="form-row">
-          <div className="form-group">
-            <label htmlFor="eq-recurso">Recurso solicitado:</label>
-            <select
-              id="eq-recurso"
-              name="recurso"
-              value={formData.recurso}
-              onChange={handleChange}
-              required
-              className="form-select"
-            >
-              <option value="">Selecciona un recurso</option>
-              {RECURSOS.map(r => (
-                <option key={r} value={r}>{r}</option>
-              ))}
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="eq-cantidad">Cantidad:</label>
-            <input
-              type="number"
-              id="eq-cantidad"
-              name="cantidad"
-              value={formData.cantidad}
-              onChange={handleChange}
-              min="1"
-              max="50"
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label htmlFor="eq-recurso">Recurso solicitado:</label>
+          <select
+            id="eq-recurso"
+            name="recurso"
+            value={formData.recurso}
+            onChange={handleChange}
+            required
+            className="form-select"
+          >
+            <option value="">Selecciona un recurso</option>
+            {RECURSOS.map(r => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
         </div>
-
-        {formData.recurso === 'Otro' && (
-          <div className="form-group">
-            <label htmlFor="eq-recurso-otro">Especificar recurso:</label>
-            <input
-              type="text"
-              id="eq-recurso-otro"
-              name="recurso_otro"
-              value={formData.recurso_otro}
-              onChange={handleChange}
-              placeholder="Describe el recurso"
-              required
-            />
-          </div>
-        )}
 
         <div className="form-group">
           <label htmlFor="eq-motivo">Motivo de uso:</label>
@@ -253,7 +214,7 @@ export default function EquipmentRequestForm({ onSolicitudAgregada }) {
         </div>
 
         <button type="submit" disabled={loading} className="btn-primary">
-          {loading ? 'Enviando...' : 'Enviar Solicitud'}
+          {loading ? 'Verificando disponibilidad...' : 'Enviar Solicitud'}
         </button>
       </form>
     </div>
