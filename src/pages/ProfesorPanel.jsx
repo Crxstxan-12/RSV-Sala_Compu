@@ -41,6 +41,16 @@ export default function ProfesorPanel() {
 
   useEffect(() => {
     cargarReservas()
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        cargarReservas()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleLogout = async () => {

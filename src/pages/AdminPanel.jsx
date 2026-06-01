@@ -85,6 +85,17 @@ export default function AdminPanel() {
   useEffect(() => {
     cargarReservas()
     cargarProfesores()
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        cargarReservas()
+        cargarProfesores()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const limpiarMensajes = () => {
@@ -110,7 +121,8 @@ export default function AdminPanel() {
     }
   }
 
-  const eliminarReserva = async (id) => {
+  const eliminarReserva = async () => {
+    const id = confirmDelete
     const reservaId = typeof id === 'bigint' ? id.toString() : String(id)
 
     setConfirmDelete(null)
@@ -164,6 +176,23 @@ export default function AdminPanel() {
 
   return (
     <div className="app">
+      {confirmDelete !== null && (
+        <div className="modal-overlay" onClick={() => setConfirmDelete(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3>Eliminar reserva</h3>
+            <p>¿Estás seguro de que deseas eliminar esta reserva? Esta acción no se puede deshacer.</p>
+            <div className="modal-actions">
+              <button onClick={() => setConfirmDelete(null)} className="btn-small btn-cancel">
+                Cancelar
+              </button>
+              <button onClick={eliminarReserva} className="btn-small btn-delete">
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="header">
         <div className="header-content">
           <div className="brand">
@@ -254,24 +283,13 @@ export default function AdminPanel() {
                               {loadingAccion[reserva.id] ? '...' : 'Rechazar'}
                             </button>
                           )}
-                          {confirmDelete === reserva.id ? (
-                            <>
-                              <button onClick={() => eliminarReserva(reserva.id)} className="btn-small btn-delete" disabled={loadingAccion[`delete-${reserva.id}`]}>
-                                {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Confirmar'}
-                              </button>
-                              <button onClick={() => setConfirmDelete(null)} className="btn-small btn-cancel">
-                                Cancelar
-                              </button>
-                            </>
-                          ) : (
-                            <button
-                              onClick={() => setConfirmDelete(reserva.id)}
-                              disabled={loadingAccion[`delete-${reserva.id}`]}
-                              className="btn-small btn-delete"
-                            >
-                              Eliminar
-                            </button>
-                          )}
+                          <button
+                            onClick={() => setConfirmDelete(reserva.id)}
+                            disabled={!!loadingAccion[`delete-${reserva.id}`]}
+                            className="btn-small btn-delete"
+                          >
+                            {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Eliminar'}
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -292,7 +310,7 @@ export default function AdminPanel() {
                       {reserva.estado !== 'aprobada' && (
                         <button
                           onClick={() => actualizarEstado(reserva.id, 'aprobada')}
-                          disabled={loadingAccion[reserva.id]}
+                          disabled={!!loadingAccion[reserva.id]}
                           className="btn-small btn-approve"
                         >
                           {loadingAccion[reserva.id] ? '...' : 'Aprobar'}
@@ -301,30 +319,19 @@ export default function AdminPanel() {
                       {reserva.estado !== 'rechazada' && (
                         <button
                           onClick={() => actualizarEstado(reserva.id, 'rechazada')}
-                          disabled={loadingAccion[reserva.id]}
+                          disabled={!!loadingAccion[reserva.id]}
                           className="btn-small btn-reject"
                         >
                           {loadingAccion[reserva.id] ? '...' : 'Rechazar'}
                         </button>
                       )}
-                      {confirmDelete === reserva.id ? (
-                        <>
-                          <button onClick={() => eliminarReserva(reserva.id)} className="btn-small btn-delete" disabled={loadingAccion[`delete-${reserva.id}`]}>
-                            {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Confirmar'}
-                          </button>
-                          <button onClick={() => setConfirmDelete(null)} className="btn-small btn-cancel">
-                            Cancelar
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => setConfirmDelete(reserva.id)}
-                          disabled={loadingAccion[`delete-${reserva.id}`]}
-                          className="btn-small btn-delete"
-                        >
-                          Eliminar
-                        </button>
-                      )}
+                      <button
+                        onClick={() => setConfirmDelete(reserva.id)}
+                        disabled={!!loadingAccion[`delete-${reserva.id}`]}
+                        className="btn-small btn-delete"
+                      >
+                        {loadingAccion[`delete-${reserva.id}`] ? '...' : 'Eliminar'}
+                      </button>
                     </div>
                   </div>
                 ))}
