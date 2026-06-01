@@ -3,17 +3,8 @@ import { useAuth } from '../hooks/useAuth'
 import { supabase, withTimeout } from '../services/supabase'
 
 const RECURSOS = [
-  'Data show / Proyector',
+  'Data / Proyector',
   'Televisor',
-  'Notebook',
-  'Parlantes',
-  'Micrófono',
-  'Cable HDMI',
-  'Adaptador',
-  'Extensión',
-  'Mouse',
-  'Teclado',
-  'Otro',
 ]
 
 export default function EquipmentRequestForm({ onSolicitudAgregada }) {
