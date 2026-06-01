@@ -341,7 +341,16 @@ export default function AdminPanel() {
         </div>
 
         <div className="admin-panel">
-          <h2>Profesores Registrados</h2>
+          <div className="panel-header">
+            <h2>Profesores Registrados</h2>
+            <button
+              onClick={() => { limpiarMensajes(); cargarProfesores() }}
+              disabled={loadingProfesores}
+              className="btn-small btn-refresh"
+            >
+              {loadingProfesores ? 'Actualizando...' : 'Actualizar'}
+            </button>
+          </div>
 
           {loadingProfesores ? (
             <div className="loading">

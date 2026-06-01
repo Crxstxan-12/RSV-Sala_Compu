@@ -457,6 +457,32 @@ input[type="time"] {
   margin-top: auto;
 }
 
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.panel-header h2 {
+  margin-bottom: 0;
+}
+
+.btn-refresh {
+  background-color: #667eea;
+  color: white;
+  white-space: nowrap;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background-color: #5a6fd8;
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
