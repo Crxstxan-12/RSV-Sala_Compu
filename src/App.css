@@ -503,6 +503,111 @@ input[type="time"] {
   font-size: 1rem;
 }
 
+.form-select {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.badge.delivered {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.badge.returned {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.btn-deliver {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-deliver:hover:not(:disabled) {
+  background-color: #138496;
+}
+
+.btn-return {
+  background-color: #495057;
+  color: white;
+}
+
+.btn-return:hover:not(:disabled) {
+  background-color: #343a40;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #667eea;
+  display: block;
+  margin-bottom: 0.3rem;
+  word-break: break-word;
+}
+
+.stat-value-sm {
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+  align-items: flex-end;
+}
+
+.filter-bar .form-group {
+  flex: 1;
+  min-width: 160px;
+  margin-bottom: 0;
+}
+
+.filter-bar .btn-small {
+  align-self: flex-end;
+  white-space: nowrap;
+}
+
+.solicitud-cards {
+  display: none;
+}
+
 .reserva-cards {
   display: none;
 }
@@ -606,6 +711,14 @@ input[type="time"] {
 
   .reserva-cards {
     display: block;
+  }
+
+  .solicitud-cards {
+    display: block;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .reservas-table,

@@ -16,9 +16,11 @@ const getEstadoBadge = (estado) => {
   const estados = {
     pendiente: 'badge pending',
     aprobada: 'badge approved',
-    rechazada: 'badge rejected'
+    rechazada: 'badge rejected',
+    entregada: 'badge delivered',
+    devuelta: 'badge returned',
   }
-  return <span className={estados[estado]}>{estado.toUpperCase()}</span>
+  return <span className={estados[estado] || 'badge pending'}>{estado.toUpperCase()}</span>
 }
 
 export default function AdminPanel() {
@@ -27,12 +29,19 @@ export default function AdminPanel() {
 
   const [reservas, setReservas] = useState([])
   const [profesores, setProfesores] = useState([])
+  const [solicitudes, setSolicitudes] = useState([])
 
   const [loadingReservas, setLoadingReservas] = useState(true)
   const [loadingProfesores, setLoadingProfesores] = useState(true)
+  const [loadingSolicitudes, setLoadingSolicitudes] = useState(true)
   const [loadingAccion, setLoadingAccion] = useState({})
-  const [confirmDelete, setConfirmDelete] = useState(null)
 
+  const [confirmDelete, setConfirmDelete] = useState(null)
+  const [confirmDeleteSolicitud, setConfirmDeleteSolicitud] = useState(null)
+
+  const [filtroNombre, setFiltroNombre] = useState('')
+  const [filtroRecurso, setFiltroRecurso] = useState('')
+  const [filtroFecha, setFiltroFecha] = useState('')
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -83,14 +92,36 @@ export default function AdminPanel() {
     }
   }
 
+  const cargarSolicitudes = async () => {
+    setLoadingSolicitudes(true)
+    try {
+      const { data, error } = await supabase
+        .from('solicitudes_equipos')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      setSolicitudes(data || [])
+    } catch (e) {
+      if (e?.status === 403) {
+        setError('Permisos insuficientes para leer solicitudes. Verifica RLS/políticas en Supabase.')
+      } else {
+        setError(e.message || 'No se pudieron cargar las solicitudes.')
+      }
+    } finally {
+      setLoadingSolicitudes(false)
+    }
+  }
+
   useEffect(() => {
     cargarReservas()
     cargarProfesores()
+    cargarSolicitudes()
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         cargarReservas()
         cargarProfesores()
+        cargarSolicitudes()
       }
     }
 
@@ -164,6 +195,52 @@ export default function AdminPanel() {
     }
   }
 
+  const actualizarEstadoSolicitud = async (id, nuevoEstado) => {
+    const key = `sol-${id}`
+    setLoadingAccion(prev => ({ ...prev, [key]: true }))
+    limpiarMensajes()
+    try {
+      const { error } = await supabase
+        .from('solicitudes_equipos')
+        .update({ estado: nuevoEstado })
+        .eq('id', id)
+      if (error) throw error
+      setSuccess(`Solicitud marcada como ${nuevoEstado}.`)
+      await cargarSolicitudes()
+    } catch (e) {
+      setError(e.message || 'No se pudo actualizar la solicitud.')
+    } finally {
+      setLoadingAccion(prev => ({ ...prev, [key]: false }))
+    }
+  }
+
+  const eliminarSolicitud = async () => {
+    const id = confirmDeleteSolicitud
+    const solicitudId = String(id)
+
+    setConfirmDeleteSolicitud(null)
+    setLoadingAccion(prev => ({ ...prev, [`del-sol-${solicitudId}`]: true }))
+    limpiarMensajes()
+
+    try {
+      const { error: deleteError } = await supabase
+        .from('solicitudes_equipos')
+        .delete()
+        .eq('id', solicitudId)
+
+      if (deleteError) throw deleteError
+      setSuccess('Solicitud eliminada exitosamente.')
+      await cargarSolicitudes()
+    } catch (e) {
+      if (e?.status === 403) {
+        setError('Permisos insuficientes para eliminar la solicitud.')
+      } else {
+        setError(e?.message || 'No se pudo eliminar la solicitud.')
+      }
+    } finally {
+      setLoadingAccion(prev => ({ ...prev, [`del-sol-${solicitudId}`]: false }))
+    }
+  }
 
   const handleLogout = async () => {
     await signOut()
@@ -175,6 +252,44 @@ export default function AdminPanel() {
       return a.hora_inicio.localeCompare(b.hora_inicio)
     })
   }, [reservas])
+
+  const recursosDisponibles = useMemo(() =>
+    [...new Set(solicitudes.map(s => s.recurso))].sort(),
+    [solicitudes]
+  )
+
+  const solicitudesFiltradas = useMemo(() => {
+    return [...solicitudes]
+      .filter(s => {
+        if (filtroNombre && !s.nombre.toLowerCase().includes(filtroNombre.toLowerCase())) return false
+        if (filtroRecurso && s.recurso !== filtroRecurso) return false
+        if (filtroFecha && s.fecha !== filtroFecha) return false
+        return true
+      })
+      .sort((a, b) => {
+        if (a.fecha !== b.fecha) return new Date(a.fecha) - new Date(b.fecha)
+        return a.hora_inicio.localeCompare(b.hora_inicio)
+      })
+  }, [solicitudes, filtroNombre, filtroRecurso, filtroFecha])
+
+  const statsEquipos = useMemo(() => {
+    const total = solicitudes.length
+    const pendientes = solicitudes.filter(s => s.estado === 'pendiente').length
+
+    const conteoPorRecurso = {}
+    solicitudes.forEach(s => {
+      conteoPorRecurso[s.recurso] = (conteoPorRecurso[s.recurso] || 0) + 1
+    })
+    const recursoTop = Object.entries(conteoPorRecurso).sort(([, a], [, b]) => b - a)[0]
+
+    const conteoPorNombre = {}
+    solicitudes.forEach(s => {
+      conteoPorNombre[s.nombre] = (conteoPorNombre[s.nombre] || 0) + 1
+    })
+    const usuarioTop = Object.entries(conteoPorNombre).sort(([, a], [, b]) => b - a)[0]
+
+    return { total, pendientes, recursoTop, usuarioTop }
+  }, [solicitudes])
 
   return (
     <div className="app">
@@ -195,6 +310,22 @@ export default function AdminPanel() {
         </div>
       )}
 
+      {confirmDeleteSolicitud !== null && (
+        <div className="modal-overlay" onClick={() => setConfirmDeleteSolicitud(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3>Eliminar solicitud</h3>
+            <p>¿Estás seguro de que deseas eliminar esta solicitud? Esta acción no se puede deshacer.</p>
+            <div className="modal-actions">
+              <button onClick={() => setConfirmDeleteSolicitud(null)} className="btn-small btn-cancel">
+                Cancelar
+              </button>
+              <button onClick={eliminarSolicitud} className="btn-small btn-delete">
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <header className="header">
         <div className="header-content">
@@ -225,7 +356,7 @@ export default function AdminPanel() {
         <Link className="nav-btn" to="/profesor">
           Reservas
         </Link>
-        <button className="nav-btn" onClick={() => { limpiarMensajes(); cargarReservas(); cargarProfesores(); }}>
+        <button className="nav-btn" onClick={() => { limpiarMensajes(); cargarReservas(); cargarProfesores(); cargarSolicitudes(); }}>
           Actualizar
         </button>
       </nav>
@@ -234,6 +365,7 @@ export default function AdminPanel() {
         {error && <div className="alert error">{error}</div>}
         {success && <div className="alert success">{success}</div>}
 
+        {/* Reservas */}
         <div className="admin-panel">
           <h2>Reservas</h2>
 
@@ -343,6 +475,227 @@ export default function AdminPanel() {
           )}
         </div>
 
+        {/* Solicitudes de Equipos */}
+        <div className="admin-panel">
+          <h2>Solicitudes de Recursos Tecnológicos</h2>
+
+          {solicitudes.length > 0 && (
+            <div className="stats-grid">
+              <div className="stat-card">
+                <span className="stat-value">{statsEquipos.total}</span>
+                <span className="stat-label">Total solicitudes</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-value">{statsEquipos.pendientes}</span>
+                <span className="stat-label">Pendientes</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-value stat-value-sm">{statsEquipos.recursoTop ? statsEquipos.recursoTop[0] : '—'}</span>
+                <span className="stat-label">Recurso más solicitado</span>
+              </div>
+              <div className="stat-card">
+                <span className="stat-value stat-value-sm">{statsEquipos.usuarioTop ? statsEquipos.usuarioTop[0] : '—'}</span>
+                <span className="stat-label">Profesor más activo</span>
+              </div>
+            </div>
+          )}
+
+          <div className="filter-bar">
+            <div className="form-group">
+              <label>Buscar por nombre:</label>
+              <input
+                type="text"
+                value={filtroNombre}
+                onChange={e => setFiltroNombre(e.target.value)}
+                placeholder="Nombre del profesor..."
+              />
+            </div>
+            <div className="form-group">
+              <label>Recurso:</label>
+              <select
+                value={filtroRecurso}
+                onChange={e => setFiltroRecurso(e.target.value)}
+                className="form-select"
+              >
+                <option value="">Todos</option>
+                {recursosDisponibles.map(r => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Fecha:</label>
+              <input
+                type="date"
+                value={filtroFecha}
+                onChange={e => setFiltroFecha(e.target.value)}
+              />
+            </div>
+            {(filtroNombre || filtroRecurso || filtroFecha) && (
+              <button
+                className="btn-small btn-cancel"
+                onClick={() => { setFiltroNombre(''); setFiltroRecurso(''); setFiltroFecha('') }}
+              >
+                Limpiar
+              </button>
+            )}
+          </div>
+
+          {loadingSolicitudes ? (
+            <div className="loading">
+              <p>Cargando solicitudes...</p>
+            </div>
+          ) : solicitudesFiltradas.length === 0 ? (
+            <p className="no-reservas">
+              {solicitudes.length === 0
+                ? 'No hay solicitudes de equipos.'
+                : 'No hay solicitudes que coincidan con los filtros.'}
+            </p>
+          ) : (
+            <>
+              <div className="admin-table-wrapper">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Profesor</th>
+                      <th>Curso</th>
+                      <th>Recurso</th>
+                      <th>Cant.</th>
+                      <th>Fecha</th>
+                      <th>Horario</th>
+                      <th>Motivo</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {solicitudesFiltradas.map((s) => (
+                      <tr key={s.id}>
+                        <td>{s.nombre}</td>
+                        <td>{s.curso}</td>
+                        <td>{s.recurso}</td>
+                        <td>{s.cantidad}</td>
+                        <td>{formatearFecha(s.fecha)}</td>
+                        <td>{s.hora_inicio} - {s.hora_fin}</td>
+                        <td>{s.motivo}</td>
+                        <td>{getEstadoBadge(s.estado)}</td>
+                        <td className="actions-cell">
+                          {s.estado === 'pendiente' && (
+                            <button
+                              onClick={() => actualizarEstadoSolicitud(s.id, 'aprobada')}
+                              disabled={!!loadingAccion[`sol-${s.id}`]}
+                              className="btn-small btn-approve"
+                            >
+                              {loadingAccion[`sol-${s.id}`] ? '...' : 'Aprobar'}
+                            </button>
+                          )}
+                          {(s.estado === 'pendiente' || s.estado === 'aprobada') && (
+                            <button
+                              onClick={() => actualizarEstadoSolicitud(s.id, 'rechazada')}
+                              disabled={!!loadingAccion[`sol-${s.id}`]}
+                              className="btn-small btn-reject"
+                            >
+                              {loadingAccion[`sol-${s.id}`] ? '...' : 'Rechazar'}
+                            </button>
+                          )}
+                          {s.estado === 'aprobada' && (
+                            <button
+                              onClick={() => actualizarEstadoSolicitud(s.id, 'entregada')}
+                              disabled={!!loadingAccion[`sol-${s.id}`]}
+                              className="btn-small btn-deliver"
+                            >
+                              {loadingAccion[`sol-${s.id}`] ? '...' : 'Entregado'}
+                            </button>
+                          )}
+                          {s.estado === 'entregada' && (
+                            <button
+                              onClick={() => actualizarEstadoSolicitud(s.id, 'devuelta')}
+                              disabled={!!loadingAccion[`sol-${s.id}`]}
+                              className="btn-small btn-return"
+                            >
+                              {loadingAccion[`sol-${s.id}`] ? '...' : 'Devuelto'}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setConfirmDeleteSolicitud(s.id)}
+                            disabled={!!loadingAccion[`del-sol-${s.id}`]}
+                            className="btn-small btn-delete"
+                          >
+                            {loadingAccion[`del-sol-${s.id}`] ? '...' : 'Eliminar'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="solicitud-cards">
+                {solicitudesFiltradas.map((s) => (
+                  <div key={s.id} className="reserva-card">
+                    <div className="card-row"><span className="card-label">Profesor:</span> {s.nombre}</div>
+                    <div className="card-row"><span className="card-label">Curso:</span> {s.curso}</div>
+                    <div className="card-row"><span className="card-label">Recurso:</span> {s.recurso} (x{s.cantidad})</div>
+                    <div className="card-row"><span className="card-label">Fecha:</span> {formatearFecha(s.fecha)}</div>
+                    <div className="card-row"><span className="card-label">Horario:</span> {s.hora_inicio} - {s.hora_fin}</div>
+                    <div className="card-row"><span className="card-label">Motivo:</span> {s.motivo}</div>
+                    {s.observaciones && (
+                      <div className="card-row"><span className="card-label">Obs.:</span> {s.observaciones}</div>
+                    )}
+                    <div className="card-row"><span className="card-label">Estado:</span> {getEstadoBadge(s.estado)}</div>
+                    <div className="card-actions">
+                      {s.estado === 'pendiente' && (
+                        <button
+                          onClick={() => actualizarEstadoSolicitud(s.id, 'aprobada')}
+                          disabled={!!loadingAccion[`sol-${s.id}`]}
+                          className="btn-small btn-approve"
+                        >
+                          {loadingAccion[`sol-${s.id}`] ? '...' : 'Aprobar'}
+                        </button>
+                      )}
+                      {(s.estado === 'pendiente' || s.estado === 'aprobada') && (
+                        <button
+                          onClick={() => actualizarEstadoSolicitud(s.id, 'rechazada')}
+                          disabled={!!loadingAccion[`sol-${s.id}`]}
+                          className="btn-small btn-reject"
+                        >
+                          {loadingAccion[`sol-${s.id}`] ? '...' : 'Rechazar'}
+                        </button>
+                      )}
+                      {s.estado === 'aprobada' && (
+                        <button
+                          onClick={() => actualizarEstadoSolicitud(s.id, 'entregada')}
+                          disabled={!!loadingAccion[`sol-${s.id}`]}
+                          className="btn-small btn-deliver"
+                        >
+                          {loadingAccion[`sol-${s.id}`] ? '...' : 'Entregado'}
+                        </button>
+                      )}
+                      {s.estado === 'entregada' && (
+                        <button
+                          onClick={() => actualizarEstadoSolicitud(s.id, 'devuelta')}
+                          disabled={!!loadingAccion[`sol-${s.id}`]}
+                          className="btn-small btn-return"
+                        >
+                          {loadingAccion[`sol-${s.id}`] ? '...' : 'Devuelto'}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setConfirmDeleteSolicitud(s.id)}
+                        disabled={!!loadingAccion[`del-sol-${s.id}`]}
+                        className="btn-small btn-delete"
+                      >
+                        {loadingAccion[`del-sol-${s.id}`] ? '...' : 'Eliminar'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Profesores Registrados */}
         <div className="admin-panel">
           <h2>Profesores Registrados</h2>
 
