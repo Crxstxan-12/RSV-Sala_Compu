@@ -32,6 +32,7 @@ export default function AdminPanel() {
   const [loadingProfesores, setLoadingProfesores] = useState(true)
   const [loadingAccion, setLoadingAccion] = useState({})
   const [confirmDelete, setConfirmDelete] = useState(null)
+  const [confirmDeleteProfesor, setConfirmDeleteProfesor] = useState(null)
 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -163,6 +164,30 @@ export default function AdminPanel() {
     }
   }
 
+  const eliminarProfesor = async () => {
+    const id = confirmDeleteProfesor
+    setConfirmDeleteProfesor(null)
+    limpiarMensajes()
+
+    try {
+      const { error } = await supabase
+        .from('perfiles')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      setSuccess('Profesor eliminado de la lista exitosamente.')
+      await cargarProfesores()
+    } catch (e) {
+      if (e?.status === 403) {
+        setError('Permisos insuficientes para eliminar el perfil. Verifica la policy DELETE en la tabla perfiles.')
+      } else {
+        setError(e?.message || 'No se pudo eliminar el profesor.')
+      }
+    }
+  }
+
   const handleLogout = async () => {
     await signOut()
   }
@@ -186,6 +211,23 @@ export default function AdminPanel() {
                 Cancelar
               </button>
               <button onClick={eliminarReserva} className="btn-small btn-delete">
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmDeleteProfesor !== null && (
+        <div className="modal-overlay" onClick={() => setConfirmDeleteProfesor(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <h3>Eliminar profesor</h3>
+            <p>¿Estás seguro de que deseas eliminar este profesor de la lista? Esta acción no se puede deshacer.</p>
+            <div className="modal-actions">
+              <button onClick={() => setConfirmDeleteProfesor(null)} className="btn-small btn-cancel">
+                Cancelar
+              </button>
+              <button onClick={eliminarProfesor} className="btn-small btn-delete">
                 Sí, eliminar
               </button>
             </div>
@@ -341,16 +383,7 @@ export default function AdminPanel() {
         </div>
 
         <div className="admin-panel">
-          <div className="panel-header">
-            <h2>Profesores Registrados</h2>
-            <button
-              onClick={() => { limpiarMensajes(); cargarProfesores() }}
-              disabled={loadingProfesores}
-              className="btn-small btn-refresh"
-            >
-              {loadingProfesores ? 'Actualizando...' : 'Actualizar'}
-            </button>
-          </div>
+          <h2>Profesores Registrados</h2>
 
           {loadingProfesores ? (
             <div className="loading">
@@ -365,6 +398,7 @@ export default function AdminPanel() {
                   <tr>
                     <th>Nombre</th>
                     <th>Correo</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -372,6 +406,14 @@ export default function AdminPanel() {
                     <tr key={p.id}>
                       <td>{p.nombre || p.email}</td>
                       <td>{p.email}</td>
+                      <td>
+                        <button
+                          onClick={() => setConfirmDeleteProfesor(p.id)}
+                          className="btn-small btn-delete"
+                        >
+                          Eliminar
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
