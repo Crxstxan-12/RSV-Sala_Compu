@@ -1,9 +1,5 @@
 import { useMemo } from 'react'
-
-const formatearFecha = (fecha) => {
-  const date = new Date(fecha)
-  return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
-}
+import { formatearFecha } from '../utils/fecha'
 
 const getEstadoBadge = (estado) => {
   const clases = {

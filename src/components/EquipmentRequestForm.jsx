@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { supabase, withTimeout } from '../services/supabase'
+import { fechaHoyLocal } from '../utils/fecha'
 
 const RECURSOS = [
   'Data / Proyector',
@@ -142,7 +143,7 @@ export default function EquipmentRequestForm({ onSolicitudAgregada }) {
             name="fecha"
             value={formData.fecha}
             onChange={handleChange}
-            min={new Date().toISOString().split('T')[0]}
+            min={fechaHoyLocal()}
             max={`${new Date().getFullYear()}-12-31`}
             required
           />

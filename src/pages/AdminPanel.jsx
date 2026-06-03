@@ -2,15 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../services/supabase'
-
-const formatearFecha = (fecha) => {
-  const date = new Date(fecha)
-  return date.toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
+import { formatearFecha } from '../utils/fecha'
 
 const getEstadoBadge = (estado) => {
   const estados = {
@@ -248,7 +240,7 @@ export default function AdminPanel() {
 
   const reservasOrdenadas = useMemo(() => {
     return [...reservas].sort((a, b) => {
-      if (a.fecha !== b.fecha) return new Date(a.fecha) - new Date(b.fecha)
+      if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha)
       return a.hora_inicio.localeCompare(b.hora_inicio)
     })
   }, [reservas])
@@ -267,7 +259,7 @@ export default function AdminPanel() {
         return true
       })
       .sort((a, b) => {
-        if (a.fecha !== b.fecha) return new Date(a.fecha) - new Date(b.fecha)
+        if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha)
         return a.hora_inicio.localeCompare(b.hora_inicio)
       })
   }, [solicitudes, filtroNombre, filtroRecurso, filtroFecha])

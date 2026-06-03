@@ -1,3 +1,5 @@
+import { formatearFecha } from '../utils/fecha'
+
 function ReservationsTable({ reservas }) {
   const getEstadoBadge = (estado) => {
     const estados = {
@@ -8,18 +10,9 @@ function ReservationsTable({ reservas }) {
     return <span className={estados[estado]}>{estado.toUpperCase()}</span>
   }
 
-  const formatearFecha = (fecha) => {
-    const date = new Date(fecha)
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  }
-
   const reservasOrdenadas = [...reservas].sort((a, b) => {
     if (a.fecha !== b.fecha) {
-      return new Date(a.fecha) - new Date(b.fecha)
+      return a.fecha.localeCompare(b.fecha)
     }
     return a.hora_inicio.localeCompare(b.hora_inicio)
   })
