@@ -7,32 +7,71 @@ const traducirErrorAuth = (error) => {
   const status = error?.status
   const code = error?.code
 
-  if (mensaje.includes('Invalid login credentials')) {
-    return 'Credenciales inválidas. Verifica tu correo y contraseña.'
+  if (mensaje.includes('Invalid login credentials') || mensaje.includes('invalid_credentials')) {
+    return 'Correo o contraseña incorrectos. Verifica tus datos e intenta nuevamente.'
   }
-  if (mensaje.includes('Email not confirmed')) {
-    return 'Correo electrónico no confirmado. Por favor confirma tu correo.'
+  if (mensaje.includes('Email not confirmed') || mensaje.includes('email_not_confirmed')) {
+    return 'Correo electrónico no confirmado. Por favor revisa tu bandeja de entrada y confirma tu correo.'
   }
-  if (mensaje.includes('User already registered')) {
-    return 'Este correo ya está registrado.'
+  if (mensaje.includes('User already registered') || mensaje.includes('user_already_exists') || mensaje.includes('already registered')) {
+    return 'Este correo ya está registrado. Intenta iniciar sesión.'
   }
-  if (mensaje.includes('Password should be at least')) {
+  if (mensaje.includes('Password should be at least') || mensaje.includes('password_too_short')) {
     return 'La contraseña debe tener al menos 6 caracteres.'
   }
-  if (mensaje.includes('JWT expired')) {
+  if (mensaje.includes('JWT expired') || mensaje.includes('session_expired') || mensaje.includes('token_expired')) {
     return 'Tu sesión expiró. Por favor inicia sesión nuevamente.'
+  }
+  if (mensaje.includes('Email rate limit') || mensaje.includes('over_email_send_rate_limit') || mensaje.includes('email_rate_limit')) {
+    return 'Demasiados intentos. Espera unos minutos antes de intentar nuevamente.'
+  }
+  if (mensaje.includes('Too many requests') || mensaje.includes('over_request_rate_limit') || mensaje.includes('rate_limit')) {
+    return 'Demasiadas solicitudes. Espera unos minutos e intenta nuevamente.'
+  }
+  if (mensaje.includes('For security purposes, you can only request this after')) {
+    return 'Por seguridad, espera unos minutos antes de volver a intentarlo.'
+  }
+  if (mensaje.includes('Signup is disabled') || mensaje.includes('signups_disabled')) {
+    return 'El registro de nuevas cuentas está deshabilitado. Contacta al administrador.'
+  }
+  if (mensaje.includes('User not found') || mensaje.includes('user_not_found')) {
+    return 'No se encontró ninguna cuenta con ese correo.'
+  }
+  if (mensaje.includes('New password should be different') || mensaje.includes('same_password')) {
+    return 'La nueva contraseña debe ser diferente a la anterior.'
+  }
+  if (mensaje.includes('Weak password') || mensaje.includes('weak_password')) {
+    return 'La contraseña es demasiado débil. Usa al menos 6 caracteres con letras y números.'
+  }
+  if (mensaje.includes('Invalid email') || mensaje.includes('invalid_email') || mensaje.includes('Unable to validate email')) {
+    return 'El correo electrónico ingresado no es válido.'
   }
   if (
     mensaje.includes('Failed to fetch') ||
     mensaje.includes('NetworkError') ||
     mensaje.includes('Load failed') ||
     mensaje.includes('The operation was aborted') ||
-    mensaje.includes('AbortError')
+    mensaje.includes('AbortError') ||
+    mensaje.includes('fetch')
   ) {
-    return 'No se pudo conectar con Supabase. Prueba en otro navegador o desactiva bloqueadores/VPN, y revisa tu conexión.'
+    return 'Sin conexión a internet. Revisa tu red e intenta nuevamente.'
   }
   if (status === 403 || code === '42501') {
     return 'Permisos insuficientes. Verifica RLS y políticas en Supabase para "perfiles" y "reservas".'
+  }
+  if (status === 401) {
+    return 'No autorizado. Por favor inicia sesión nuevamente.'
+  }
+  if (status === 422) {
+    return 'Datos inválidos. Verifica que tu correo y contraseña sean correctos.'
+  }
+  if (status === 500 || status === 503) {
+    return 'Error del servidor. Intenta nuevamente en unos minutos.'
+  }
+
+  // Si el mensaje viene en inglés (contiene palabras comunes en inglés), reemplazar por genérico
+  if (/\b(error|invalid|failed|cannot|unable|unexpected|forbidden|unauthorized|not found|conflict|timeout)\b/i.test(mensaje)) {
+    return 'Ocurrió un error inesperado. Intenta nuevamente o contacta al administrador.'
   }
 
   return mensaje

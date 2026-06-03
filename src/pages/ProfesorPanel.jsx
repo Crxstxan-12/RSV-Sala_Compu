@@ -4,6 +4,7 @@ import ReservationForm from '../components/ReservationForm'
 import ReservationsTable from '../components/ReservationsTable'
 import EquipmentRequestForm from '../components/EquipmentRequestForm'
 import EquipmentRequestsList from '../components/EquipmentRequestsList'
+import LiveDateTime from '../components/LiveDateTime'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../services/supabase'
 
@@ -92,6 +93,7 @@ export default function ProfesorPanel() {
               <div className="brand-title">Plataforma de Reservas</div>
               <div className="brand-subtitle">Sala de Computación · Escuela Particular Chillán Viejo</div>
             </div>
+            <LiveDateTime />
           </div>
           <div className="header-user">
             <span className="user-info">

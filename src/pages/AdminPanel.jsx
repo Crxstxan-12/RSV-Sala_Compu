@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../services/supabase'
 import { formatearFecha } from '../utils/fecha'
+import LiveDateTime from '../components/LiveDateTime'
 
 const getEstadoBadge = (estado) => {
   const estados = {
@@ -332,6 +333,7 @@ export default function AdminPanel() {
               <div className="brand-title">Plataforma de Reservas</div>
               <div className="brand-subtitle">Sala de Computación · Escuela Particular Chillán Viejo</div>
             </div>
+            <LiveDateTime />
           </div>
           <div className="header-user">
             <span className="user-info">

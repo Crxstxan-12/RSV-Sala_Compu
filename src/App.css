@@ -604,6 +604,46 @@ input[type="time"] {
   white-space: nowrap;
 }
 
+/* ── Live DateTime ─────────────────────────────────────────── */
+
+.live-datetime {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.9rem;
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 10px;
+  flex-shrink: 0;
+  margin-left: 0.25rem;
+}
+
+.live-time {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.05em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.live-time svg {
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.live-date {
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  text-transform: capitalize;
+}
+
 .solicitud-cards {
   display: none;
 }
@@ -719,6 +759,21 @@ input[type="time"] {
 
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .live-datetime {
+    align-self: center;
+    align-items: center;
+    margin-left: 0;
+    margin-top: 0.25rem;
+  }
+
+  .live-time {
+    font-size: 1.05rem;
+  }
+
+  .live-date {
+    font-size: 0.72rem;
   }
 
   .reservas-table,
