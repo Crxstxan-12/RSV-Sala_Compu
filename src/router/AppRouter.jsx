@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { Component, lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import ProtectedRoute from './ProtectedRoute'
@@ -7,6 +7,36 @@ import AdminPanel from '../pages/AdminPanel'
 import ProfesorPanel from '../pages/ProfesorPanel'
 
 const Informes = lazy(() => import('../pages/Informes'))
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { error: null }
+  }
+  static getDerivedStateFromError(error) {
+    return { error }
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="app">
+          <main className="main">
+            <div className="form-container">
+              <h2>Error al cargar el módulo</h2>
+              <div className="alert error">
+                {this.state.error.message || 'Ocurrió un error inesperado. Recarga la página.'}
+              </div>
+              <button className="btn-primary" onClick={() => window.location.reload()}>
+                Recargar página
+              </button>
+            </div>
+          </main>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
 
 function RootRedirect() {
   const { user, profile, loadingSession, loadingProfile } = useAuth()
@@ -47,9 +77,11 @@ export default function AppRouter() {
         <Route
           path="/admin/informes"
           element={
-            <Suspense fallback={<FallbackCargando />}>
-              <Informes />
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={<FallbackCargando />}>
+                <Informes />
+              </Suspense>
+            </ErrorBoundary>
           }
         />
       </Route>

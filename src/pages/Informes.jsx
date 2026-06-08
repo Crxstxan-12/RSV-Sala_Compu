@@ -6,8 +6,6 @@ import LiveDateTime from '../components/LiveDateTime'
 import ReportCards from '../components/reports/ReportCards'
 import ChartsDashboard from '../components/reports/ChartsDashboard'
 import ReportsTable from '../components/reports/ReportsTable'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
 
 // ── Helpers de fecha local (sin offset UTC) ──────────────────────────────────
 const toLocalStr = (date) =>
@@ -54,6 +52,7 @@ export default function Informes() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const [exportandoPDF, setExportandoPDF] = useState(false)
   const [periodo, setPeriodo] = useState('semana')
   const [fechaInicio, setFechaInicio] = useState(getLunesActual())
   const [fechaFin, setFechaFin] = useState(getDomingoActual())
@@ -189,8 +188,15 @@ export default function Informes() {
   }, [solicitudesFiltradas])
 
   // ── Exportar PDF ────────────────────────────────────────────────────────────
-  const exportarPDF = () => {
-    const doc = new jsPDF()
+  const exportarPDF = async () => {
+    setExportandoPDF(true)
+    let doc
+    try {
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+        import('jspdf'),
+        import('jspdf-autotable'),
+      ])
+      doc = new jsPDF()
     const ahora = new Date()
     const fechaGen = ahora.toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })
     const horaGen = ahora.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })
@@ -310,7 +316,12 @@ export default function Informes() {
       )
     }
 
-    doc.save(`informe-${fechaInicio}-al-${fechaFin}.pdf`)
+      doc.save(`informe-${fechaInicio}-al-${fechaFin}.pdf`)
+    } catch (e) {
+      setError('No se pudo generar el PDF. Inténtalo nuevamente.')
+    } finally {
+      setExportandoPDF(false)
+    }
   }
 
   const sinDatos = reservasFiltradas.length === 0 && solicitudesFiltradas.length === 0
@@ -393,10 +404,10 @@ export default function Informes() {
             <button
               onClick={exportarPDF}
               className="btn-small btn-pdf"
-              disabled={loading || sinDatos}
+              disabled={loading || sinDatos || exportandoPDF}
               title={sinDatos ? 'Sin datos en el período seleccionado' : 'Descargar PDF'}
             >
-              📄 Exportar PDF
+              {exportandoPDF ? 'Generando...' : '📄 Exportar PDF'}
             </button>
             <button onClick={() => window.print()} className="btn-small btn-print">
               🖨 Imprimir
