@@ -350,6 +350,9 @@ export default function AdminPanel() {
         <Link className="nav-btn" to="/profesor">
           Reservas
         </Link>
+        <Link className="nav-btn" to="/admin/informes">
+          Informes
+        </Link>
         <button className="nav-btn" onClick={() => { limpiarMensajes(); cargarReservas(); cargarProfesores(); cargarSolicitudes(); }}>
           Actualizar
         </button>
