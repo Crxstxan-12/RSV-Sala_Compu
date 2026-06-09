@@ -6,16 +6,24 @@ import {
 
 const COLORES_PIE = ['#22c55e', '#f59e0b', '#ef4444']
 
-const TooltipPersonalizado = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="chart-tooltip">
-        <p className="chart-tooltip-label">{label}</p>
-        <p className="chart-tooltip-value">{payload[0].value} {payload[0].name === 'reservas' ? 'reservas' : payload[0].name === 'total' ? 'reservas' : ''}</p>
-      </div>
-    )
-  }
-  return null
+const TooltipReservas = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="chart-tooltip">
+      <p className="chart-tooltip-label">{label}</p>
+      <p className="chart-tooltip-value">{payload[0].value} reservas</p>
+    </div>
+  )
+}
+
+const TooltipSemana = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="chart-tooltip">
+      <p className="chart-tooltip-label">{label}</p>
+      <p className="chart-tooltip-value">{payload[0].value} reservas</p>
+    </div>
+  )
 }
 
 export default function ChartsDashboard({ datosPorDia, datosEstados, datosPorSemana, datosRecursos }) {
@@ -29,7 +37,7 @@ export default function ChartsDashboard({ datosPorDia, datosEstados, datosPorSem
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis dataKey="dia" tick={{ fontSize: 10 }} tickFormatter={d => d.slice(0, 3)} />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-            <Tooltip content={<TooltipPersonalizado />} />
+            <Tooltip content={<TooltipReservas />} />
             <Bar dataKey="reservas" fill="#2563eb" radius={[4, 4, 0, 0]} maxBarSize={40} />
           </BarChart>
         </ResponsiveContainer>
@@ -49,32 +57,43 @@ export default function ChartsDashboard({ datosPorDia, datosEstados, datosPorSem
                 cy="45%"
                 outerRadius={72}
                 dataKey="value"
-                label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
                 labelLine={false}
               >
                 {datosEstados.map((_, i) => (
                   <Cell key={i} fill={COLORES_PIE[i % COLORES_PIE.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value, name) => [value, name]} />
+              <Tooltip formatter={(value) => [value, '']} />
               <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 12 }} />
             </PieChart>
           </ResponsiveContainer>
         )}
       </div>
 
-      {/* Líneas: uso por semana */}
+      {/* Líneas o barras: uso por semana */}
       <div className="chart-card">
         <h3>Uso de sala por semana</h3>
         {datosPorSemana.length === 0 ? (
           <p className="chart-empty">Sin datos en el período seleccionado</p>
+        ) : datosPorSemana.length === 1 ? (
+          // Con 1 solo punto una línea no se ve — mostrar barra
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={datosPorSemana} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+              <XAxis dataKey="semana" tick={{ fontSize: 10 }} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+              <Tooltip content={<TooltipSemana />} />
+              <Bar dataKey="total" fill="#7c3aed" radius={[4, 4, 0, 0]} maxBarSize={60} />
+            </BarChart>
+          </ResponsiveContainer>
         ) : (
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={datosPorSemana} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="semana" tick={{ fontSize: 10 }} />
               <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-              <Tooltip content={<TooltipPersonalizado />} />
+              <Tooltip content={<TooltipSemana />} />
               <Line
                 type="monotone"
                 dataKey="total"
