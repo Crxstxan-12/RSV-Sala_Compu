@@ -9,13 +9,13 @@ export default function ReportCards({ stats }) {
   const cardsTexto = [
     {
       label: 'Profesor con más reservas',
-      valor: stats.profesorTop ? `${stats.profesorTop[0]} (${stats.profesorTop[1]})` : '—',
+      valor: stats.profesorTop ? `${stats.profesorTop[0]} (${stats.profesorTop[1]} reservas)` : '—',
       icono: '👨‍🏫',
       color: 'kpi-purple',
     },
     {
       label: 'Curso con mayor uso',
-      valor: stats.cursoTop ? `${stats.cursoTop[0]} (${stats.cursoTop[1]})` : '—',
+      valor: stats.cursoTop ? `${stats.cursoTop[0]} (${stats.cursoTop[1]} reservas)` : '—',
       icono: '🏫',
       color: 'kpi-indigo',
     },
@@ -26,8 +26,14 @@ export default function ReportCards({ stats }) {
       color: 'kpi-teal',
     },
     {
+      label: 'Horario más utilizado',
+      valor: stats.horarioTop ? `${stats.horarioTop[0]} (${stats.horarioTop[1]}x)` : '—',
+      icono: '🕐',
+      color: 'kpi-pink',
+    },
+    {
       label: 'Equipo más solicitado',
-      valor: stats.recursoTop ? `${stats.recursoTop[0]} (${stats.recursoTop[1]})` : '—',
+      valor: stats.recursoTop ? `${stats.recursoTop[0]} (${stats.recursoTop[1]} veces)` : '—',
       icono: '🖥',
       color: 'kpi-orange',
     },
@@ -35,7 +41,7 @@ export default function ReportCards({ stats }) {
 
   return (
     <div className="kpi-section">
-      <div className="report-cards-grid">
+      <div className="report-cards-grid report-cards-grid-4">
         {cardsNumericas.map(c => (
           <div key={c.label} className={`kpi-card ${c.color}`}>
             <div className="kpi-icon">{c.icono}</div>
@@ -45,7 +51,7 @@ export default function ReportCards({ stats }) {
         ))}
       </div>
 
-      <div className="report-cards-grid">
+      <div className="report-cards-grid report-cards-grid-5">
         {cardsTexto.map(c => (
           <div key={c.label} className={`kpi-card ${c.color}`}>
             <div className="kpi-icon">{c.icono}</div>

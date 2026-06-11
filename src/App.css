@@ -971,6 +971,10 @@ input[type="time"] {
 .kpi-indigo{ border-top-color: #4338ca; } .kpi-indigo .kpi-value-sm { color: #4338ca; }
 .kpi-teal  { border-top-color: #0d9488; } .kpi-teal  .kpi-value-sm { color: #0d9488; }
 .kpi-orange{ border-top-color: #ea580c; } .kpi-orange .kpi-value-sm { color: #ea580c; }
+.kpi-pink  { border-top-color: #db2777; } .kpi-pink  .kpi-value-sm { color: #db2777; }
+
+.report-cards-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.report-cards-grid-5 { grid-template-columns: repeat(5, 1fr); }
 
 /* ── Gráficos ──────────────────────────────────────────────────────── */
 .charts-grid {
@@ -1167,11 +1171,15 @@ input[type="time"] {
 /* ── Responsive ────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .report-cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .report-cards-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .report-cards-grid-5 { grid-template-columns: repeat(3, 1fr); }
   .charts-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
   .report-cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .report-cards-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .report-cards-grid-5 { grid-template-columns: repeat(2, 1fr); }
 
   .report-filter-bar {
     flex-direction: column;
@@ -1210,7 +1218,9 @@ input[type="time"] {
 }
 
 @media (max-width: 480px) {
-  .report-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .report-cards-grid,
+  .report-cards-grid-4,
+  .report-cards-grid-5 { grid-template-columns: repeat(2, 1fr); gap: 10px; }
   .kpi-card { padding: 14px 10px; }
   .kpi-icon { font-size: 20px; }
   .kpi-value { font-size: 1.7rem; }

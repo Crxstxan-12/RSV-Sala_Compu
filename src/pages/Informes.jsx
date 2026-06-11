@@ -317,7 +317,7 @@ export default function Informes() {
     }
 
       doc.save(`informe-${fechaInicio}-al-${fechaFin}.pdf`)
-    } catch (e) {
+    } catch {
       setError('No se pudo generar el PDF. Inténtalo nuevamente.')
     } finally {
       setExportandoPDF(false)

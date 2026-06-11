@@ -120,7 +120,6 @@ export default function AdminPanel() {
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const limpiarMensajes = () => {
