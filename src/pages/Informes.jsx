@@ -510,14 +510,14 @@ export default function Informes() {
         ) : (
           <>
             <ReportCards stats={stats} />
-
-            <ChartsDashboard
-              datosPorDia={datosPorDia}
-              datosEstados={datosEstados}
-              datosPorSemana={datosPorSemana}
-              datosRecursos={datosRecursos}
-            />
-
+           {/* 
+              <ChartsDashboard
+                datosPorDia={datosPorDia}
+                datosEstados={datosEstados}
+                datosPorSemana={datosPorSemana}
+                datosRecursos={datosRecursos}
+              /> 
+              */}
             <ReportsTable
               reservas={reservasFiltradas}
               solicitudes={solicitudesFiltradas}
