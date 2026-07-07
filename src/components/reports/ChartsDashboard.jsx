@@ -37,7 +37,7 @@ export default function ChartsDashboard({ datosPorDia, datosEstados, datosPorSem
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis dataKey="dia" tick={{ fontSize: 10 }} tickFormatter={d => d.slice(0, 3)} />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-            <Tooltip content={<TooltipReservas />} />
+            <Tooltip content={(props) => <TooltipReservas {...props} />} />
             <Bar dataKey="reservas" fill="#2563eb" radius={[4, 4, 0, 0]} maxBarSize={40} />
           </BarChart>
         </ResponsiveContainer>
@@ -64,7 +64,7 @@ export default function ChartsDashboard({ datosPorDia, datosEstados, datosPorSem
                   <Cell key={i} fill={COLORES_PIE[i % COLORES_PIE.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => [value, '']} />
+              <Tooltip />
               <Legend iconType="circle" iconSize={10} wrapperStyle={{ fontSize: 12 }} />
             </PieChart>
           </ResponsiveContainer>
@@ -83,7 +83,7 @@ export default function ChartsDashboard({ datosPorDia, datosEstados, datosPorSem
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="semana" tick={{ fontSize: 10 }} />
               <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-              <Tooltip content={<TooltipSemana />} />
+              <Tooltip content={(props) => <TooltipSemana {...props} />} />
               <Bar dataKey="total" fill="#7c3aed" radius={[4, 4, 0, 0]} maxBarSize={60} />
             </BarChart>
           </ResponsiveContainer>
